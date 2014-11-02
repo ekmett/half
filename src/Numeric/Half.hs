@@ -3,6 +3,19 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE DeriveDataTypeable #-}
+-----------------------------------------------------------------------------
+-- |
+-- Copyright   :  (C) 2014 Edward Kmett
+-- License     :  BSD-style (see the file LICENSE)
+-- Maintainer  :  Edward Kmett <ekmett@gmail.com>
+-- Stability   :  experimental
+-- Portability :  PatternSynonyms
+--
+-- Half-precision floating-point values. These arise commonly in GPU work
+-- and it is useful to be able to compute them and compute with them on the
+-- CPU as well.
+----------------------------------------------------------------------------
+
 module Numeric.Half 
   ( Half(..)
   , isZero
@@ -27,10 +40,12 @@ import Data.Typeable
 import Foreign.C.Types
 import Foreign.Storable
 
+-- | Convert a 'Float' to a 'Half' with proper rounding, while preserving NaN and dealing appropriately with infinity
 foreign import ccall unsafe "hs_floatToHalf" toHalf :: Float -> Half
-foreign import ccall unsafe "hs_halfToFloat" toFloat :: Half -> Float
-
 {-# RULES "toHalf"  realToFrac = toHalf #-}
+
+-- | Convert a 'Half' to a 'Float' while preserving NaN
+foreign import ccall unsafe "hs_halfToFloat" toFloat :: Half -> Float
 {-# RULES "toFloat" realToFrac = toFloat #-}
 
 newtype Half = Half { getHalf :: CUShort } deriving (Storable, Typeable)
