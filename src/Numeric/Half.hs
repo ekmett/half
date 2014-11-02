@@ -111,12 +111,20 @@ instance RealFloat Half where
   significand = toHalf . significand . toFloat
   scaleFloat n = toHalf . scaleFloat n . toFloat
 
+-- | Is this 'Half' equal to 0?
 isZero :: Half -> Bool
 isZero (Half h) = h .&. 0x7fff == 0
 
+-- | Positive infinity
 pattern POS_INF = Half 0x7c00
+
+-- | Negative infinity
 pattern NEG_INF = Half 0xfc00
+
+-- | Quiet NaN
 pattern QNaN    = Half 0x7fff
+
+-- | Signalling NaN
 pattern SNaN    = Half 0x7dff
 
 -- | Smallest positive half
