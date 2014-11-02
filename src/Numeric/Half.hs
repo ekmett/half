@@ -48,7 +48,7 @@ foreign import ccall unsafe "hs_floatToHalf" toHalf :: Float -> Half
 foreign import ccall unsafe "hs_halfToFloat" toFloat :: Half -> Float
 {-# RULES "toFloat" realToFrac = toFloat #-}
 
-newtype Half = Half { getHalf :: CUShort } deriving (Storable, Typeable)
+newtype {-# CTYPE "unsigned short" #-} Half = Half { getHalf :: CUShort } deriving (Storable, Typeable)
 
 instance Show Half where
   showsPrec d h = showsPrec d (toFloat h)
