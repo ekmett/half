@@ -19,7 +19,7 @@
 module Numeric.Half 
   ( Half(..)
   , isZero
-  , toFloat
+  , fromHalf
   , toHalf
   , pattern POS_INF
   , pattern NEG_INF
@@ -39,77 +39,81 @@ import Data.Function (on)
 import Data.Typeable
 import Foreign.C.Types
 import Foreign.Storable
+import Text.Read
 
 -- | Convert a 'Float' to a 'Half' with proper rounding, while preserving NaN and dealing appropriately with infinity
 foreign import ccall unsafe "hs_floatToHalf" toHalf :: Float -> Half
 {-# RULES "toHalf"  realToFrac = toHalf #-}
 
 -- | Convert a 'Half' to a 'Float' while preserving NaN
-foreign import ccall unsafe "hs_halfToFloat" toFloat :: Half -> Float
-{-# RULES "toFloat" realToFrac = toFloat #-}
+foreign import ccall unsafe "hs_halfToFloat" fromHalf :: Half -> Float
+{-# RULES "fromHalf" realToFrac = fromHalf #-}
 
 newtype {-# CTYPE "unsigned short" #-} Half = Half { getHalf :: CUShort } deriving (Storable, Typeable)
 
 instance Show Half where
-  showsPrec d h = showsPrec d (toFloat h)
+  showsPrec d h = showsPrec d (fromHalf h)
+
+instance Read Half where
+  readPrec = fmap toHalf readPrec
 
 instance Eq Half where
-  (==) = (==) `on` toFloat
+  (==) = (==) `on` fromHalf
 
 instance Ord Half where
-  compare = compare `on` toFloat
+  compare = compare `on` fromHalf
 
 instance Real Half where
-  toRational = toRational . toFloat
+  toRational = toRational . fromHalf
 
 instance Fractional Half where
   fromRational = toHalf . fromRational
-  recip = toHalf . recip . toFloat
-  a / b = toHalf $ toFloat a / toFloat b
+  recip = toHalf . recip . fromHalf
+  a / b = toHalf $ fromHalf a / fromHalf b
 
 instance RealFrac Half where
-  properFraction a = case properFraction (toFloat a) of
+  properFraction a = case properFraction (fromHalf a) of
     (b, c) -> (b, toHalf c)
-  truncate = truncate . toFloat
-  round = round . toFloat
-  ceiling = ceiling . toFloat
-  floor = floor . toFloat
+  truncate = truncate . fromHalf
+  round = round . fromHalf
+  ceiling = ceiling . fromHalf
+  floor = floor . fromHalf
 
 instance Floating Half where
   pi = toHalf pi
-  exp = toHalf . exp . toFloat
-  sqrt = toHalf . sqrt . toFloat
-  log = toHalf . log . toFloat
-  a ** b = toHalf $ toFloat a ** toFloat b
-  logBase a b = toHalf $ logBase (toFloat a) (toFloat b)
-  sin = toHalf . sin . toFloat
-  tan = toHalf . tan . toFloat
-  cos = toHalf . cos . toFloat
-  asin = toHalf . asin . toFloat
-  atan = toHalf . atan . toFloat
-  acos = toHalf . acos . toFloat
-  sinh = toHalf . sinh . toFloat
-  tanh = toHalf . tanh . toFloat
-  cosh = toHalf . cosh . toFloat
-  asinh = toHalf . asinh . toFloat
-  atanh = toHalf . atanh . toFloat
-  acosh = toHalf . acosh . toFloat
+  exp = toHalf . exp . fromHalf
+  sqrt = toHalf . sqrt . fromHalf
+  log = toHalf . log . fromHalf
+  a ** b = toHalf $ fromHalf a ** fromHalf b
+  logBase a b = toHalf $ logBase (fromHalf a) (fromHalf b)
+  sin = toHalf . sin . fromHalf
+  tan = toHalf . tan . fromHalf
+  cos = toHalf . cos . fromHalf
+  asin = toHalf . asin . fromHalf
+  atan = toHalf . atan . fromHalf
+  acos = toHalf . acos . fromHalf
+  sinh = toHalf . sinh . fromHalf
+  tanh = toHalf . tanh . fromHalf
+  cosh = toHalf . cosh . fromHalf
+  asinh = toHalf . asinh . fromHalf
+  atanh = toHalf . atanh . fromHalf
+  acosh = toHalf . acosh . fromHalf
 
 instance RealFloat Half where
   floatRadix  _ = 2
   floatDigits _ = 11
-  decodeFloat = decodeFloat . toFloat
+  decodeFloat = decodeFloat . fromHalf
   isInfinite (Half h) = unsafeShiftR h 10 .&. 0x1f >= 32
   isIEEE _ = isIEEE (undefined :: Float)
-  atan2 a b = toHalf $ atan2 (toFloat a) (toFloat b)
+  atan2 a b = toHalf $ atan2 (fromHalf a) (fromHalf b)
   isDenormalized (Half h) = unsafeShiftR h 10 .&. 0x1f == 0 && h .&. 0x3ff /= 0
   isNaN (Half h) = unsafeShiftR h 10 .&. 0x1f == 0x1f && h .&. 0x3ff /= 0
   isNegativeZero (Half h) = h == 0x8000
   floatRange _ = (16,-13)
   encodeFloat i j = toHalf $ encodeFloat i j
-  exponent = exponent . toFloat
-  significand = toHalf . significand . toFloat
-  scaleFloat n = toHalf . scaleFloat n . toFloat
+  exponent = exponent . fromHalf
+  significand = toHalf . significand . fromHalf
+  scaleFloat n = toHalf . scaleFloat n . fromHalf
 
 -- | Is this 'Half' equal to 0?
 isZero :: Half -> Bool
@@ -149,10 +153,10 @@ pattern HALF_MIN_10_EXP = -4
 pattern HALF_MAX_10_EXP = 4
 
 instance Num Half where
-  a * b = toHalf (toFloat a * toFloat b)
-  a - b = toHalf (toFloat a - toFloat b)
-  a + b = toHalf (toFloat a + toFloat b)
+  a * b = toHalf (fromHalf a * fromHalf b)
+  a - b = toHalf (fromHalf a - fromHalf b)
+  a + b = toHalf (fromHalf a + fromHalf b)
   negate (Half a) = Half (xor 0x8000 a)
-  abs = toHalf . abs . toFloat
-  signum = toHalf . signum . toFloat
+  abs = toHalf . abs . fromHalf
+  signum = toHalf . signum . fromHalf
   fromInteger a = toHalf (fromInteger a)
