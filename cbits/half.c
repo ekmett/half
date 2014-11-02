@@ -21,7 +21,7 @@ unsigned short hs_floatToHalf (float f) {
   }
   
   /* round the normalized float */
-  m += 0x00000fff + ((m >> 13) & 1);
+  m = m + 0x00000fff + ((m >> 13) & 1);
 
   /* significand overflow */
   if (m & 0x00800000) {
