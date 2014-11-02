@@ -1,11 +1,10 @@
 unsigned short hs_floatToHalf (float f) {
   union { float d; unsigned int i; } u = { f };
   int s =  (u.i >> 16) & 0x00008000;
-  int e = ((u.i >> 16) & 0x00008000) - 112;
+  int e = ((u.i >> 16) & 0x000000ff) - 112;
   int m =          u.i & 0x007fffff;
-
   if (e <= 0) {
-    if (e < -10) return s;
+    if (e < -10) return s; /* underflowed */
     /* force leading 1 and round */
     m |= 0x00800000;
     int t = 14 - e;
