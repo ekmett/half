@@ -43,11 +43,11 @@ import Text.Read
 
 -- | Convert a 'Float' to a 'Half' with proper rounding, while preserving NaN and dealing appropriately with infinity
 foreign import ccall unsafe "hs_floatToHalf" toHalf :: Float -> Half
-{-# RULES "toHalf"  realToFrac = toHalf #-}
+-- {-# RULES "toHalf"  realToFrac = toHalf #-}
 
 -- | Convert a 'Half' to a 'Float' while preserving NaN
 foreign import ccall unsafe "hs_halfToFloat" fromHalf :: Half -> Float
-{-# RULES "fromHalf" realToFrac = fromHalf #-}
+-- {-# RULES "fromHalf" realToFrac = fromHalf #-}
 
 newtype {-# CTYPE "unsigned short" #-} Half = Half { getHalf :: CUShort } deriving (Storable, Typeable)
 
