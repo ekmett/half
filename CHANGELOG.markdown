@@ -1,3 +1,7 @@
+0.2.0.1
+-------
+* Fixed source repository location
+
 0.2
 ---
 * Renamed `toFloat` to `fromHalf` for easier unqualified use.
