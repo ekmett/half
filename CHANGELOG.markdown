@@ -1,3 +1,7 @@
+0.2.1
+-----
+* Removed need for `GeneralizedNewtypeDeriving` and `ScopedTypeVariables`.
+
 0.2.0.1
 -------
 * Fixed source repository location
