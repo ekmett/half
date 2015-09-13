@@ -1,7 +1,5 @@
 {-# LANGUAGE ForeignFunctionInterface #-}
 {-# LANGUAGE PatternSynonyms #-}
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 -----------------------------------------------------------------------------
 -- |
@@ -38,6 +36,7 @@ import Data.Bits
 import Data.Function (on)
 import Data.Typeable
 import Foreign.C.Types
+import Foreign.Ptr (castPtr)
 import Foreign.Storable
 import Text.Read
 
@@ -49,7 +48,13 @@ foreign import ccall unsafe "hs_floatToHalf" toHalf :: Float -> Half
 foreign import ccall unsafe "hs_halfToFloat" fromHalf :: Half -> Float
 -- {-# RULES "fromHalf" realToFrac = fromHalf #-}
 
-newtype {-# CTYPE "unsigned short" #-} Half = Half { getHalf :: CUShort } deriving (Storable, Typeable)
+newtype {-# CTYPE "unsigned short" #-} Half = Half { getHalf :: CUShort } deriving (Typeable)
+
+instance Storable Half where
+  sizeOf = sizeOf . getHalf
+  alignment = alignment . getHalf
+  peek = peek . castPtr
+  poke p = poke (castPtr p) . getHalf
 
 instance Show Half where
   showsPrec d h = showsPrec d (fromHalf h)
@@ -132,16 +137,16 @@ pattern QNaN    = Half 0x7fff
 pattern SNaN    = Half 0x7dff
 
 -- | Smallest positive half
-pattern HALF_MIN = 5.96046448e-08 :: Half 
+pattern HALF_MIN = Half 0x0001  -- 5.96046448e-08
 
 -- | Smallest positive normalized half
-pattern HALF_NRM_MIN = 6.10351562e-05 :: Half
+pattern HALF_NRM_MIN = Half 0x0400  -- 6.10351562e-05
 
 -- | Largest positive half
-pattern HALF_MAX = 65504.0 :: Half
+pattern HALF_MAX = Half 0x7bff  -- 65504.0
 
 -- | Smallest positive e for which half (1.0 + e) != half (1.0)
-pattern HALF_EPSILON = 0.00097656 :: Half
+pattern HALF_EPSILON = Half 0x1400  -- 0.00097656
 
 -- | Number of base 10 digits that can be represented without change
 pattern HALF_DIG = 2 
