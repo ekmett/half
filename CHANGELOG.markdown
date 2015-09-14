@@ -1,3 +1,7 @@
+0.2.2
+-----
+* Fixed `isInfinite`.
+
 0.2.1
 -----
 * Removed need for `GeneralizedNewtypeDeriving` and `ScopedTypeVariables`.

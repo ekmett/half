@@ -108,7 +108,7 @@ instance RealFloat Half where
   floatRadix  _ = 2
   floatDigits _ = 11
   decodeFloat = decodeFloat . fromHalf
-  isInfinite (Half h) = unsafeShiftR h 10 .&. 0x1f >= 32
+  isInfinite (Half h) = unsafeShiftR h 10 .&. 0x1f >= 31
   isIEEE _ = isIEEE (undefined :: Float)
   atan2 a b = toHalf $ atan2 (fromHalf a) (fromHalf b)
   isDenormalized (Half h) = unsafeShiftR h 10 .&. 0x1f == 0 && h .&. 0x3ff /= 0
