@@ -1,6 +1,9 @@
-{-# LANGUAGE ForeignFunctionInterface #-}
+{-# LANGUAGE CPP #-}
+#if __GLASGOW_HASKELL__ >= 708
 {-# LANGUAGE PatternSynonyms #-}
+#endif
 {-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE ForeignFunctionInterface #-}
 -----------------------------------------------------------------------------
 -- |
 -- Copyright   :  (C) 2014 Edward Kmett
@@ -19,6 +22,7 @@ module Numeric.Half
   , isZero
   , fromHalf
   , toHalf
+#if __GLASGOW_HASKELL__ >= 708
   , pattern POS_INF
   , pattern NEG_INF
   , pattern QNaN
@@ -30,6 +34,7 @@ module Numeric.Half
   , pattern HALF_DIG
   , pattern HALF_MIN_10_EXP
   , pattern HALF_MAX_10_EXP
+#endif
   ) where
 
 import Data.Bits
@@ -124,6 +129,8 @@ instance RealFloat Half where
 isZero :: Half -> Bool
 isZero (Half h) = h .&. 0x7fff == 0
 
+#if __GLASGOW_HASKELL__ >= 708
+
 -- | Positive infinity
 pattern POS_INF = Half 0x7c00
 
@@ -156,6 +163,8 @@ pattern HALF_MIN_10_EXP = -4
 
 -- Maximum positive integer such that 10 raised to that power is a normalized half
 pattern HALF_MAX_10_EXP = 4
+
+#endif
 
 instance Num Half where
   a * b = toHalf (fromHalf a * fromHalf b)
