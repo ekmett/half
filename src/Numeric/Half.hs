@@ -4,6 +4,11 @@
 #endif
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE ForeignFunctionInterface #-}
+
+#ifndef MIN_VERSION_base
+#define MIN_VERSION_base(x,y,z) 1
+#endif
+
 -----------------------------------------------------------------------------
 -- |
 -- Copyright   :  (C) 2014 Edward Kmett
@@ -113,11 +118,18 @@ instance RealFloat Half where
   floatRadix  _ = 2
   floatDigits _ = 11
   decodeFloat = decodeFloat . fromHalf
-  isInfinite (Half h) = unsafeShiftR h 10 .&. 0x1f >= 31
   isIEEE _ = isIEEE (undefined :: Float)
   atan2 a b = toHalf $ atan2 (fromHalf a) (fromHalf b)
+#if MIN_VERSION_base(4,5,0)
+  isInfinite (Half h) = unsafeShiftR h 10 .&. 0x1f >= 31
   isDenormalized (Half h) = unsafeShiftR h 10 .&. 0x1f == 0 && h .&. 0x3ff /= 0
   isNaN (Half h) = unsafeShiftR h 10 .&. 0x1f == 0x1f && h .&. 0x3ff /= 0
+#else
+  isInfinite (Half h) = shiftR h 10 .&. 0x1f >= 31
+  isDenormalized (Half h) = shiftR h 10 .&. 0x1f == 0 && h .&. 0x3ff /= 0
+  isNaN (Half h) = shiftR h 10 .&. 0x1f == 0x1f && h .&. 0x3ff /= 0
+#endif
+
   isNegativeZero (Half h) = h == 0x8000
   floatRange _ = (16,-13)
   encodeFloat i j = toHalf $ encodeFloat i j

@@ -1,3 +1,7 @@
+0.2.2.1
+-------
+* Added support for older GHCs still. `unsafeShiftR` was only added in 7.4.
+
 0.2.2
 -----
 * Fixed `isInfinite`.
