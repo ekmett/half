@@ -58,7 +58,11 @@ foreign import ccall unsafe "hs_floatToHalf" toHalf :: Float -> Half
 foreign import ccall unsafe "hs_halfToFloat" fromHalf :: Half -> Float
 -- {-# RULES "fromHalf" realToFrac = fromHalf #-}
 
-newtype {-# CTYPE "unsigned short" #-} Half = Half { getHalf :: CUShort } deriving (Typeable)
+newtype
+#if __GLASGOW_HASKELL__ >= 706
+  {-# CTYPE "unsigned short" #-}
+#endif
+  Half = Half { getHalf :: CUShort } deriving (Typeable)
 
 instance Storable Half where
   sizeOf = sizeOf . getHalf
