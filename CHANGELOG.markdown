@@ -1,3 +1,7 @@
+0.2.2.2
+-------
+* Fixed an issue with `Storable` that was causing crashing for some users.
+
 0.2.2.1
 -------
 * Added support for older GHCs still. `unsafeShiftR` was only added in 7.4.
