@@ -22,7 +22,7 @@
 -- CPU as well.
 ----------------------------------------------------------------------------
 
-module Numeric.Half 
+module Numeric.Half
   ( Half(..)
   , isZero
   , fromHalf
@@ -67,7 +67,7 @@ newtype
 instance Storable Half where
   sizeOf = sizeOf . getHalf
   alignment = alignment . getHalf
-  peek = peek . castPtr
+  peek p = peek (castPtr p) >>= return . Half
   poke p = poke (castPtr p) . getHalf
 
 instance Show Half where
@@ -172,7 +172,7 @@ pattern HALF_MAX = Half 0x7bff  -- 65504.0
 pattern HALF_EPSILON = Half 0x1400  -- 0.00097656
 
 -- | Number of base 10 digits that can be represented without change
-pattern HALF_DIG = 2 
+pattern HALF_DIG = 2
 
 -- Minimum positive integer such that 10 raised to that power is a normalized half
 pattern HALF_MIN_10_EXP = -4
