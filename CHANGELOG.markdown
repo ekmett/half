@@ -1,3 +1,7 @@
+0.2.2.3
+-------
+* Avoid the new warnings for missing pattern synonym signatures on GHC 8
+
 0.2.2.2
 -------
 * Fixed an issue with `Storable` that was causing crashing for some users.
