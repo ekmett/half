@@ -32,6 +32,6 @@ library
   ghc-options: -Wall -fwarn-tabs -O2
 
   if impl(ghc >= 8)
-    ghc-options: -fno-warn-missing-pat-syn-sigs
+    ghc-options: -Wno-missing-pattern-synonym-signatures
 
   exposed-modules: Numeric.Half
