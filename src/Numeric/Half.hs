@@ -43,6 +43,7 @@ module Numeric.Half
 #endif
   ) where
 
+import Control.DeepSeq (NFData)
 import Data.Bits
 import Data.Function (on)
 import Data.Typeable
@@ -65,6 +66,8 @@ newtype
   {-# CTYPE "unsigned short" #-}
 #endif
   Half = Half { getHalf :: CUShort } deriving (Generic, Typeable)
+
+instance NFData Half where
 
 instance Storable Half where
   sizeOf = sizeOf . getHalf
