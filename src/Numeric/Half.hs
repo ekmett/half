@@ -51,6 +51,7 @@ import Foreign.C.Types
 import Foreign.Ptr (castPtr)
 import Foreign.Storable
 import GHC.Generics
+import Language.Haskell.TH.Syntax
 import Text.Read
 
 -- | Convert a 'Float' to a 'Half' with proper rounding, while preserving NaN and dealing appropriately with infinity
@@ -199,3 +200,6 @@ instance Num Half where
   abs = toHalf . abs . fromHalf
   signum = toHalf . signum . fromHalf
   fromInteger a = toHalf (fromInteger a)
+
+instance Lift Half where
+  lift = return . LitE . FloatPrimL . toRational
