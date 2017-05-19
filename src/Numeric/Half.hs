@@ -3,6 +3,7 @@
 {-# LANGUAGE PatternSynonyms #-}
 #endif
 {-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE ForeignFunctionInterface #-}
 
 #ifndef MIN_VERSION_base
@@ -42,12 +43,14 @@ module Numeric.Half
 #endif
   ) where
 
+import Control.DeepSeq (NFData)
 import Data.Bits
 import Data.Function (on)
 import Data.Typeable
 import Foreign.C.Types
 import Foreign.Ptr (castPtr)
 import Foreign.Storable
+import GHC.Generics
 import Language.Haskell.TH.Syntax
 import Text.Read
 
@@ -63,7 +66,9 @@ newtype
 #if __GLASGOW_HASKELL__ >= 706
   {-# CTYPE "unsigned short" #-}
 #endif
-  Half = Half { getHalf :: CUShort } deriving (Typeable)
+  Half = Half { getHalf :: CUShort } deriving (Generic, Typeable)
+
+instance NFData Half where
 
 instance Storable Half where
   sizeOf = sizeOf . getHalf
@@ -193,4 +198,4 @@ instance Num Half where
   fromInteger a = toHalf (fromInteger a)
 
 instance Lift Half where
-  lift = return . LitE . FloatPrimL . toRational 
+  lift = return . LitE . FloatPrimL . toRational
