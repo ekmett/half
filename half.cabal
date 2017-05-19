@@ -29,6 +29,7 @@ library
   hs-source-dirs: src
   c-sources: cbits/half.c
   build-depends: base >= 4.3 && < 5
+               , template-haskell
   ghc-options: -Wall -fwarn-tabs -O2
 
   if impl(ghc >= 8)
