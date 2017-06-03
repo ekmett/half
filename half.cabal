@@ -38,3 +38,14 @@ library
     ghc-options: -Wno-missing-pattern-synonym-signatures
 
   exposed-modules: Numeric.Half
+
+test-suite spec
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  hs-source-dirs: test
+  ghc-options: -Wall
+  build-depends:
+      base >= 4.3 && < 5
+    , half
+    , hspec >= 2.4
+    , QuickCheck >= 2.9
