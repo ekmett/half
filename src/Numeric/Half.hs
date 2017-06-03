@@ -72,7 +72,7 @@ instance NFData Half where
 instance Storable Half where
   sizeOf = sizeOf . getHalf
   alignment = alignment . getHalf
-  peek p = peek (castPtr p) >>= return . Half
+  peek p = fmap Half (peek (castPtr p))
   poke p = poke (castPtr p) . getHalf
 
 instance Show Half where
