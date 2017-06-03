@@ -3,6 +3,7 @@
 {-# LANGUAGE PatternSynonyms #-}
 #endif
 {-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE ForeignFunctionInterface #-}
 
 #ifndef MIN_VERSION_base
@@ -48,6 +49,7 @@ import Data.Typeable
 import Foreign.C.Types
 import Foreign.Ptr (castPtr)
 import Foreign.Storable
+import GHC.Generics
 import Text.Read
 
 -- | Convert a 'Float' to a 'Half' with proper rounding, while preserving NaN and dealing appropriately with infinity
@@ -62,7 +64,7 @@ newtype
 #if __GLASGOW_HASKELL__ >= 706
   {-# CTYPE "unsigned short" #-}
 #endif
-  Half = Half { getHalf :: CUShort } deriving (Typeable)
+  Half = Half { getHalf :: CUShort } deriving (Generic, Typeable)
 
 instance Storable Half where
   sizeOf = sizeOf . getHalf
