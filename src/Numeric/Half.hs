@@ -81,6 +81,10 @@ instance Eq Half where
 
 instance Ord Half where
   compare = compare `on` fromHalf
+  (<) = (<) `on` fromHalf
+  (<=) = (<=) `on` fromHalf
+  (>) = (>) `on` fromHalf
+  (>=) = (>=) `on` fromHalf
 
 instance Real Half where
   toRational = toRational . fromHalf
