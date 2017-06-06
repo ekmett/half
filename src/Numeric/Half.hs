@@ -5,6 +5,7 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE ForeignFunctionInterface #-}
+{-# LANGUAGE TemplateHaskell #-}
 
 #ifndef MIN_VERSION_base
 #define MIN_VERSION_base(x,y,z) 1
@@ -51,7 +52,9 @@ import Foreign.C.Types
 import Foreign.Ptr (castPtr)
 import Foreign.Storable
 import GHC.Generics
-import Text.Read
+import Language.Haskell.TH
+import Language.Haskell.TH.Syntax
+import Text.Read hiding (lift)
 
 -- | Convert a 'Float' to a 'Half' with proper rounding, while preserving NaN and dealing appropriately with infinity
 foreign import ccall unsafe "hs_floatToHalf" toHalf :: Float -> Half
@@ -199,3 +202,6 @@ instance Num Half where
   abs = toHalf . abs . fromHalf
   signum = toHalf . signum . fromHalf
   fromInteger a = toHalf (fromInteger a)
+
+instance Lift Half where
+  lift (Half (CUShort w)) = appE (conE 'Half) . appE (conE 'CUShort) . lift $ w
