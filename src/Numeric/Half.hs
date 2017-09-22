@@ -44,7 +44,9 @@ module Numeric.Half
 #endif
   ) where
 
+#if __GLASGOW_HASKELL__ >= 708
 import Control.DeepSeq (NFData)
+#endif
 import Data.Bits
 import Data.Function (on)
 import Data.Typeable
@@ -70,7 +72,9 @@ newtype
 #endif
   Half = Half { getHalf :: CUShort } deriving (Generic, Typeable)
 
+#if __GLASGOW_HASKELL__ >= 708
 instance NFData Half where
+#endif
 
 instance Storable Half where
   sizeOf = sizeOf . getHalf

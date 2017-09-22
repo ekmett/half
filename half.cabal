@@ -29,8 +29,9 @@ library
   hs-source-dirs: src
   c-sources: cbits/half.c
   build-depends: base >= 4.3 && < 5
-               , deepseq >= 1.4 && < 1.5
                , template-haskell
+  if impl(ghc >= 7.8)
+    build-depends: deepseq >= 1.4 && < 1.5
   if impl(ghc < 7.6)
     build-depends: ghc-prim
   ghc-options: -Wall -fwarn-tabs -O2
@@ -45,8 +46,11 @@ test-suite spec
   main-is: Spec.hs
   hs-source-dirs: test
   ghc-options: -Wall
-  build-depends:
-      base >= 4.3 && < 5
-    , half
-    , hspec >= 2.4
-    , QuickCheck >= 2.9
+  if impl(ghc >= 7.8)
+    build-depends:
+        base >= 4.3 && < 5
+      , half
+      , hspec >= 2.4
+      , QuickCheck >= 2.9
+  else
+     buildable: False
