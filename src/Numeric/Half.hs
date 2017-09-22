@@ -204,4 +204,6 @@ instance Num Half where
   fromInteger a = toHalf (fromInteger a)
 
 instance Lift Half where
-  lift (Half (CUShort w)) = appE (conE 'Half) . appE (conE 'CUShort) . lift $ w
+  lift (Half (CUShort w)) =
+    appE (conE 'Half) . appE (conE 'CUShort) . litE . integerL . fromIntegral $
+    w
