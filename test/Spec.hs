@@ -1,14 +1,8 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
-import           Data.Coerce     (coerce)
-import           Data.Word       (Word16)
-import           Foreign.C.Types (CUShort (CUShort))
 import           Numeric.Half
 import           Test.Hspec
 import           Test.QuickCheck
-
-instance Arbitrary CUShort where
-  arbitrary = fmap coerce (arbitrary :: Gen Word16)
 
 instance Arbitrary Half where
   arbitrary = fmap Half arbitrary
