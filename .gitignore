@@ -1,4 +1,6 @@
 dist/
+dist-newstyle/
+.ghc.env*
 .hsenv/
 docs
 wiki
