@@ -14,27 +14,41 @@ matrix:
   include:
     - env: CABALVER=1.16 GHCVER=7.4.2
       compiler: ": #GHC 7.4.2"
-      addons: {apt: {packages: [cabal-install-1.16,ghc-7.4.2,alex-3.1.4,happy-1.19.5], sources: [hvr-ghc]}}
+      addons: {apt: {packages: [cabal-install-1.16,ghc-7.4.2,alex-3.1.7,happy-1.19.5], sources: [hvr-ghc]}}
     - env: CABALVER=1.16 GHCVER=7.6.3
       compiler: ": #GHC 7.6.3"
-      addons: {apt: {packages: [cabal-install-1.16,ghc-7.6.3,alex-3.1.4,happy-1.19.5], sources: [hvr-ghc]}}
+      addons: {apt: {packages: [cabal-install-1.16,ghc-7.6.3,alex-3.1.7,happy-1.19.5], sources: [hvr-ghc]}}
     - env: CABALVER=1.18 GHCVER=7.8.4
       compiler: ": #GHC 7.8.4"
-      addons: {apt: {packages: [cabal-install-1.18,ghc-7.8.4,alex-3.1.4,happy-1.19.5], sources: [hvr-ghc]}}
+      addons: {apt: {packages: [cabal-install-1.18,ghc-7.8.4,alex-3.1.7,happy-1.19.5], sources: [hvr-ghc]}}
     - env: CABALVER=1.22 GHCVER=7.10.1
       compiler: ": #GHC 7.10.1"
-      addons: {apt: {packages: [cabal-install-1.22,ghc-7.10.1,alex-3.1.4,happy-1.19.5], sources: [hvr-ghc]}}
+      addons: {apt: {packages: [cabal-install-1.22,ghc-7.10.1,alex-3.1.7,happy-1.19.5], sources: [hvr-ghc]}}
     - env: CABALVER=1.22 GHCVER=7.10.2
       compiler: ": #GHC 7.10.2"
-      addons: {apt: {packages: [cabal-install-1.22,ghc-7.10.2,alex-3.1.4,happy-1.19.5], sources: [hvr-ghc]}}
-    - env: CABALVER=1.24 GHCVER=8.0.1
-      compiler: ": #GHC 8.0.1"
-      addons: {apt: {packages: [cabal-install-1.24,ghc-8.0.1,alex-3.1.4,happy-1.19.5], sources: [hvr-ghc]}}
+      addons: {apt: {packages: [cabal-install-1.22,ghc-7.10.2,alex-3.1.7,happy-1.19.5], sources: [hvr-ghc]}}
+    - env: CABALVER=1.24 GHCVER=8.0.2
+      compiler: ": #GHC 8.0.2"
+      addons: {apt: {packages: [cabal-install-1.24,ghc-8.0.2,alex-3.1.7,happy-1.19.5], sources: [hvr-ghc]}}
+    - env: CABALVER=1.24 GHCVER=8.2.2
+      compiler: ": #GHC 8.2.2"
+      addons: {apt: {packages: [cabal-install-1.24,ghc-8.2.2,alex-3.1.7,happy-1.19.5], sources: [hvr-ghc]}}
+    - env: CABALVER=2.0 GHCVER=8.4.1
+      compiler: ": #GHC 8.4.1"
+      addons: {apt: {packages: [cabal-install-2.0,ghc-8.4.1,alex-3.1.7,happy-1.19.5], sources: [hvr-ghc]}}
+    - env: CABALVER=head GHCVER=head
+      compiler: ": #GHC head"
+      addons: {apt: {packages: [cabal-install-head,ghc-head,alex-3.1.7,happy-1.19.5], sources: [hvr-ghc]}}
+
+# NOTE: The `primitve` package is currently broken with 8.4.1, remove the line below when this is fixed.
+  allow_failures:
+    - env: CABALVER=2.0 GHCVER=8.4.1
+    - env: CABALVER=head GHCVER=head
 
 before_install:
  - unset CC
  - export HAPPYVER=1.19.5
- - export ALEXVER=3.1.4
+ - export ALEXVER=3.1.7
  - export PATH=~/.cabal/bin:/opt/ghc/$GHCVER/bin:/opt/cabal/$CABALVER/bin:/opt/happy/$HAPPYVER/bin:/opt/alex/$ALEXVER/bin:$PATH
 
 install:
