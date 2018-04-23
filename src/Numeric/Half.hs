@@ -153,7 +153,7 @@ instance RealFloat Half where
 #endif
 
   isNegativeZero (Half h) = h == 0x8000
-  floatRange _ = (16,-13)
+  floatRange _ = (-13,16)
   encodeFloat i j = toHalf $ encodeFloat i j
   exponent = exponent . fromHalf
   significand = toHalf . significand . fromHalf
