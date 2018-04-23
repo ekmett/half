@@ -1,11 +1,12 @@
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE BangPatterns             #-}
+{-# LANGUAGE CPP                      #-}
+{-# LANGUAGE DeriveDataTypeable       #-}
+{-# LANGUAGE DeriveGeneric            #-}
+{-# LANGUAGE ForeignFunctionInterface #-}
+{-# LANGUAGE TemplateHaskell          #-}
 #if __GLASGOW_HASKELL__ >= 708
 {-# LANGUAGE PatternSynonyms #-}
 #endif
-{-# LANGUAGE DeriveDataTypeable #-}
-{-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE ForeignFunctionInterface #-}
-{-# LANGUAGE TemplateHaskell #-}
 
 #ifndef MIN_VERSION_base
 #define MIN_VERSION_base(x,y,z) 1
@@ -49,6 +50,7 @@ import Control.DeepSeq (NFData)
 #endif
 import Data.Bits
 import Data.Function (on)
+import Data.Int
 import Data.Typeable
 import Foreign.C.Types
 import Foreign.Ptr (castPtr)
@@ -137,7 +139,7 @@ instance Floating Half where
 instance RealFloat Half where
   floatRadix  _ = 2
   floatDigits _ = 11
-  decodeFloat = decodeFloat . fromHalf
+  decodeFloat = ieee754_f16_decode
   isIEEE _ = isIEEE (undefined :: Float)
   atan2 a b = toHalf $ atan2 (fromHalf a) (fromHalf b)
 #if MIN_VERSION_base(4,5,0)
@@ -211,3 +213,41 @@ instance Lift Half where
   lift (Half (CUShort w)) =
     appE (conE 'Half) . appE (conE 'CUShort) . litE . integerL . fromIntegral $
     w
+
+
+-- Adapted from ghc/rts/StgPrimFloat.c
+--
+ieee754_f16_decode :: Half -> (Integer, Int)
+ieee754_f16_decode (Half (CUShort i)) =
+  let
+      _HHIGHBIT                       = 0x0400
+      _HMSBIT                         = 0x8000
+      _HMINEXP                        = ((_HALF_MIN_EXP) - (_HALF_MANT_DIG) - 1)
+      _HALF_MANT_DIG                  = floatDigits (undefined::Half)
+      (_HALF_MIN_EXP, _HALF_MAX_EXP)  = floatRange  (undefined::Half)
+
+      high1 = fromIntegral i
+      high2 = high1 .&. (_HHIGHBIT - 1)
+
+      exp1  = ((fromIntegral high1 `unsafeShiftR` 10) .&. 0x1F) + _HMINEXP
+      exp2  = exp1 + 1
+
+      (high3, exp3)
+            = if exp1 /= _HMINEXP
+                then (high2 .|. _HHIGHBIT, exp1)
+                else
+                      let go (!h, !e) =
+                            if h .&. _HHIGHBIT /= 0
+                              then go (h `unsafeShiftL` 1, e-1)
+                              else (h, e)
+                      in
+                      go (high2, exp2)
+
+      high4 = if fromIntegral i < (0 :: Int16)
+                then -high3
+                else  high3
+  in
+  if high1 .&. complement _HMSBIT == 0
+    then (0,0)
+    else (high4, exp3)
+
