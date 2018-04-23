@@ -1,3 +1,9 @@
+0.3
+---
+* Fixed bound in `floatRange`.
+* Fixed `decodeFloat`.
+* Added a `Lift` instance for `Half` for `template-haskell` support.
+
 0.2.2.3
 -------
 * Avoid the new warnings for missing pattern synonym signatures on GHC 8
