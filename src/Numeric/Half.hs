@@ -58,8 +58,10 @@ import Foreign.C.Types
 import Foreign.Ptr (castPtr)
 import Foreign.Storable
 import GHC.Generics
+#ifdef WITH_TEMPLATE_HASKELL
 import Language.Haskell.TH
 import Language.Haskell.TH.Syntax
+#endif
 import Text.Read hiding (lift)
 
 -- | Convert a 'Float' to a 'Half' with proper rounding, while preserving NaN and dealing appropriately with infinity

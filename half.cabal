@@ -40,8 +40,11 @@ library
                       ForeignFunctionInterface
     ghc-options: -Wall -fwarn-tabs -O2
     build-depends:
-        base >=4.3 && <5,
-        template-haskell -any
+        base >=4.3 && <5
+
+    if !flag(cross)
+        build-depends:
+            template-haskell -any
 
     if !flag(cross)
         cpp-options: -DWITH_TEMPLATE_HASKELL
