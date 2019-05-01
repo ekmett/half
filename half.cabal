@@ -1,55 +1,77 @@
-name:          half
-category:      Numeric
-version:       0.3
-license:       BSD3
-cabal-version: >= 1.8
-license-file:  LICENSE
-author:        Edward A. Kmett
-maintainer:    Edward A. Kmett <ekmett@gmail.com>
-stability:     provisional
-homepage:      http://github.com/ekmett/half
-bug-reports:   http://github.com/ekmett/half/issues
-copyright:     Copyright (C) 2014 Edward A. Kmett
-build-type:    Simple
-synopsis:      Half-precision floating-point
-description:   Half-precision floating-point.
-
+cabal-version: >=1.8
+name: half
+version: 0.3
+license: BSD3
+license-file: LICENSE
+copyright: Copyright (C) 2014 Edward A. Kmett
+maintainer: Edward A. Kmett <ekmett@gmail.com>
+author: Edward A. Kmett
+stability: provisional
+homepage: http://github.com/ekmett/half
+bug-reports: http://github.com/ekmett/half/issues
+synopsis: Half-precision floating-point
+description:
+    Half-precision floating-point.
+category: Numeric
+build-type: Simple
 extra-source-files:
-  .travis.yml
-  .gitignore
-  README.markdown
-  CHANGELOG.markdown
+    .travis.yml
+    .gitignore
+    README.markdown
+    CHANGELOG.markdown
 
 source-repository head
-  type: git
-  location: git://github.com/ekmett/half.git
+    type: git
+    location: git://github.com/ekmett/half.git
+
+flag cross
+    description:
+        Disable Template Haskell to make cross-compilation easier
+    default: False
+    manual: True
 
 library
-  hs-source-dirs: src
-  c-sources: cbits/half.c
-  build-depends: base >= 4.3 && < 5
-               , template-haskell
-  if impl(ghc >= 7.8)
-    build-depends: deepseq >= 1.4 && < 1.5
-  if impl(ghc < 7.6)
-    build-depends: ghc-prim
-  ghc-options: -Wall -fwarn-tabs -O2
+    exposed-modules:
+        Numeric.Half
+    c-sources:
+        cbits/half.c
+    hs-source-dirs: src
+    other-extensions: BangPatterns CPP DeriveDataTypeable DeriveGeneric
+                      ForeignFunctionInterface
+    ghc-options: -Wall -fwarn-tabs -O2
+    build-depends:
+        base >=4.3 && <5,
+        template-haskell -any
 
-  if impl(ghc >= 8)
-    ghc-options: -Wno-missing-pattern-synonym-signatures
+    if !flag(cross)
+        cpp-options: -DWITH_TEMPLATE_HASKELL
+        other-extensions: TemplateHaskell
 
-  exposed-modules: Numeric.Half
+    if impl(ghc >=7.8)
+        other-extensions: PatternSynonyms
+
+    if impl(ghc >=7.8)
+        build-depends:
+            deepseq >=1.4 && <1.5
+
+    if impl(ghc <7.6)
+        build-depends:
+            ghc-prim -any
+
+    if impl(ghc >=8)
+        ghc-options: -Wno-missing-pattern-synonym-signatures
 
 test-suite spec
-  type: exitcode-stdio-1.0
-  main-is: Spec.hs
-  hs-source-dirs: test
-  ghc-options: -Wall
-  if impl(ghc >= 7.8)
-    build-depends:
-        base >= 4.3 && < 5
-      , half
-      , hspec >= 2.4
-      , QuickCheck >= 2.9
-  else
-     buildable: False
+    type: exitcode-stdio-1.0
+    main-is: Spec.hs
+    hs-source-dirs: test
+    ghc-options: -Wall
+
+    if impl(ghc >=7.8)
+        build-depends:
+            base >=4.3 && <5,
+            half -any,
+            hspec >=2.4,
+            QuickCheck >=2.9
+    else
+        buildable: False

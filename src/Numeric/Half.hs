@@ -3,7 +3,9 @@
 {-# LANGUAGE DeriveDataTypeable       #-}
 {-# LANGUAGE DeriveGeneric            #-}
 {-# LANGUAGE ForeignFunctionInterface #-}
+#ifdef WITH_TEMPLATE_HASKELL
 {-# LANGUAGE TemplateHaskell          #-}
+#endif
 #if __GLASGOW_HASKELL__ >= 708
 {-# LANGUAGE PatternSynonyms #-}
 #endif
@@ -209,10 +211,12 @@ instance Num Half where
   signum = toHalf . signum . fromHalf
   fromInteger a = toHalf (fromInteger a)
 
+#ifdef WITH_TEMPLATE_HASKELL
 instance Lift Half where
   lift (Half (CUShort w)) =
     appE (conE 'Half) . appE (conE 'CUShort) . litE . integerL . fromIntegral $
     w
+#endif
 
 
 -- Adapted from ghc/rts/StgPrimFloat.c
