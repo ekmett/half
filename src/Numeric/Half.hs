@@ -3,7 +3,9 @@
 {-# LANGUAGE DeriveDataTypeable       #-}
 {-# LANGUAGE DeriveGeneric            #-}
 {-# LANGUAGE ForeignFunctionInterface #-}
+#ifdef WITH_TEMPLATE_HASKELL
 {-# LANGUAGE TemplateHaskell          #-}
+#endif
 #if __GLASGOW_HASKELL__ >= 708
 {-# LANGUAGE PatternSynonyms #-}
 #endif
@@ -56,8 +58,10 @@ import Foreign.C.Types
 import Foreign.Ptr (castPtr)
 import Foreign.Storable
 import GHC.Generics
+#ifdef WITH_TEMPLATE_HASKELL
 import Language.Haskell.TH
 import Language.Haskell.TH.Syntax
+#endif
 import Text.Read hiding (lift)
 
 -- | Convert a 'Float' to a 'Half' with proper rounding, while preserving NaN and dealing appropriately with infinity
@@ -209,10 +213,12 @@ instance Num Half where
   signum = toHalf . signum . fromHalf
   fromInteger a = toHalf (fromInteger a)
 
+#ifdef WITH_TEMPLATE_HASKELL
 instance Lift Half where
   lift (Half (CUShort w)) =
     appE (conE 'Half) . appE (conE 'CUShort) . litE . integerL . fromIntegral $
     w
+#endif
 
 
 -- Adapted from ghc/rts/StgPrimFloat.c
