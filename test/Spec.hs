@@ -27,3 +27,7 @@ main = hspec $ do
       property $ \w -> if isNaN w
         then property $ isNaN $ toHalf (fromHalf w) -- nans go to nans
         else toHalf (fromHalf w) === w -- everything goes to itself
+    it "idempotence 1" $ do
+      property $ \w -> not (isNaN w) ==> fromHalf (toHalf $ fromHalf w) === fromHalf w
+    it "idempotence 2" $ do
+      property $ \w -> toHalf (fromHalf $ toHalf w) === toHalf w

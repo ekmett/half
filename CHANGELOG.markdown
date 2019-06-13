@@ -1,3 +1,8 @@
+0.3.1 [???]
+-----
+* Downgraded testing claims that NaNs will round-trip, as 32-bit GHCs aren't fulfilling that promise.
+  Now we merely claim that a NaN will return as a NaN.
+
 0.3
 ---
 * Fixed bound in `floatRange`.
