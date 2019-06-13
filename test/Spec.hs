@@ -23,10 +23,7 @@ main = hspec $ do
       or [a < b | a <- nans, b <- nans] `shouldBe` False
 
   describe "Round trip" $ do
-    let roundTrip w = (getHalf . toHalf . fromHalf . Half $ w) == w
-
     it "should round trip properly" $
-      property roundTrip
-
-    it "should round trip for a NaN value" $
-      roundTrip 0x7d00 `shouldBe` True
+      property $ \w -> if isNaN w
+        then property $ isNaN $ toHalf (fromHalf w) -- nans go to nans
+        else toHalf (fromHalf w) === w -- everything goes to itself
