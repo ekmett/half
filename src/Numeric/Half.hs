@@ -156,11 +156,11 @@ instance RealFloat Half where
   isIEEE _ = isIEEE (undefined :: Float)
   atan2 a b = toHalf $ atan2 (fromHalf a) (fromHalf b)
 #if MIN_VERSION_base(4,5,0)
-  isInfinite (Half h) = unsafeShiftR h 10 .&. 0x1f >= 31
+  isInfinite (Half h) = unsafeShiftR h 10 .&. 0x1f >= 31 && h .&. 0x3ff == 0
   isDenormalized (Half h) = unsafeShiftR h 10 .&. 0x1f == 0 && h .&. 0x3ff /= 0
   isNaN (Half h) = unsafeShiftR h 10 .&. 0x1f == 0x1f && h .&. 0x3ff /= 0
 #else
-  isInfinite (Half h) = shiftR h 10 .&. 0x1f >= 31
+  isInfinite (Half h) = shiftR h 10 .&. 0x1f >= 31 && h .&. 0x3ff == 0
   isDenormalized (Half h) = shiftR h 10 .&. 0x1f == 0 && h .&. 0x3ff /= 0
   isNaN (Half h) = shiftR h 10 .&. 0x1f == 0x1f && h .&. 0x3ff /= 0
 #endif
