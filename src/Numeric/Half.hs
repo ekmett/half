@@ -32,6 +32,9 @@ module Numeric.Half
   , isZero
   , fromHalf
   , toHalf
+  -- export for test
+  , hs_floatToHalf'
+  , hs_halfToFloat'
 #if __GLASGOW_HASKELL__ >= 708
   , pattern POS_INF
   , pattern NEG_INF
@@ -64,6 +67,13 @@ import Language.Haskell.TH.Syntax
 #endif
 import Text.Read hiding (lift)
 
+#ifdef __GHCJS__
+toHalf :: Float -> Half
+toHalf = Half . hs_floatToHalf'
+
+fromHalf :: Half -> Float
+fromHalf = hs_halfToFloat' . getHalf
+#else
 -- | Convert a 'Float' to a 'Half' with proper rounding, while preserving NaN and dealing appropriately with infinity
 foreign import ccall unsafe "hs_floatToHalf" toHalf :: Float -> Half
 -- {-# RULES "toHalf"  realToFrac = toHalf #-}
@@ -71,6 +81,7 @@ foreign import ccall unsafe "hs_floatToHalf" toHalf :: Float -> Half
 -- | Convert a 'Half' to a 'Float' while preserving NaN
 foreign import ccall unsafe "hs_halfToFloat" fromHalf :: Half -> Float
 -- {-# RULES "fromHalf" realToFrac = fromHalf #-}
+#endif
 
 newtype
 #if __GLASGOW_HASKELL__ >= 706
@@ -257,3 +268,63 @@ ieee754_f16_decode (Half (CUShort i)) =
     then (0,0)
     else (high4, exp3)
 
+-- naive implementation of toHalf & fromHalf for GHCJS
+hs_floatToHalf' :: Float -> CUShort
+hs_floatToHalf' x | isInfinite x = if x < 0 then 0xfc00 else 0x7c00
+hs_floatToHalf' x | isNaN x = 0xfe00
+hs_floatToHalf' x | x == 0 = if isNegativeZero x then 0x8000 else 0
+hs_floatToHalf' x = let
+  (m, n) = decodeFloat x
+  -- sign bit
+  s = if signum m < 0 then 0x8000 else 0
+  m1 = fromIntegral $ abs m :: Int
+  -- bit len of m1, here m1 /= 0
+  len = 1 + snd (foldl (\(acc, res) y -> if acc .&. y == 0
+                                         then (acc,       2*res)
+                                         else (acc .&. y, 2*res + 1))
+                       (m1, 0)
+                       [ 0xffff0000, 0xff00ff00ff00, 0xf0f0f0f0
+                       , 0xcccccccc, 0xaaaaaaaa]
+                )
+  -- scale to at least 12bit
+  (len', m', n') = if len > 11 then (len, m1, n)
+                   else (12, shiftL m1 (11 - len), n - (11 - len))
+  e = n' + len' - 1
+  in
+  if e > 15 then fromIntegral (s .|. 0x7c00)
+  else if e >= -14 then let t' = len' - 11
+                            m'' = m' + (2 ^ (t' - 1) - 1) +
+                                  (shiftR m' t' .&. 1)
+                            len'' = if testBit m'' len then len' + 1 else len'
+                            t'' = len'' - 11
+                            e'' = n' + len'' - 1
+                            res = (shiftR m'' t'' .&. 0x3ff) .|.
+                                  shiftL ((e'' + 15) .&. 0x1f) 10 .|.
+                                  s
+                            in if e'' > 15
+                               then fromIntegral (s .|. 0x7c00)
+                               else fromIntegral res
+  -- subnormal
+  else if e >= -25 then let t = -n' + 1 -11 - 14
+                            m'' = m' + (2 ^ (t - 1) - 1) +
+                                  (shiftR m' t .&. 1)
+                            res = shiftR m'' t .|. s
+                            in if e == -15 && testBit m'' (10 + t)
+                               then fromIntegral $ (shiftR m'' t .&. 0x3ff) .|.
+                                                   0x400 .|. s
+                               else fromIntegral res
+  else fromIntegral s
+
+hs_halfToFloat' :: CUShort -> Float
+hs_halfToFloat' 0xfc00 = -1/0
+hs_halfToFloat' 0x7c00 =  1/0
+hs_halfToFloat' 0x0000 =  0
+hs_halfToFloat' 0x8000 = -0
+hs_halfToFloat' x | (x .&. 0x7c00 == 0x7c00) && (x .&. 0x3ff /= 0) = 0/0
+hs_halfToFloat' x = let
+  s = if x .&. 0x8000 /= 0 then -1 else 1
+  e = fromIntegral (shiftR x 10) .&. 0x1f :: Int
+  m = x .&. 0x3ff
+  (a, b) = if e > 0 then (e - 15 - 10, m .|. 0x400)
+           else (-15 - 10 + 1, m)
+  in encodeFloat (s * fromIntegral b) a
