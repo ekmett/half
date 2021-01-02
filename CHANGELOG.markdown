@@ -4,6 +4,7 @@
   Now we merely claim that a NaN will return as a NaN.
 * Always provide NFData instance
 * Explicitly mark module as `Trustworthy`
+* Fix `isInfinite`
 
 0.3
 ---
