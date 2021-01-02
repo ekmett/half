@@ -3,12 +3,15 @@
 {-# LANGUAGE DeriveDataTypeable       #-}
 {-# LANGUAGE DeriveGeneric            #-}
 {-# LANGUAGE ForeignFunctionInterface #-}
-#ifdef WITH_TEMPLATE_HASKELL
+#if __GLASGOW_HASKELL__ >= 800
+{-# LANGUAGE TemplateHaskellQuotes    #-}
+#else
 {-# LANGUAGE TemplateHaskell          #-}
 #endif
 #if __GLASGOW_HASKELL__ >= 708
-{-# LANGUAGE PatternSynonyms #-}
+{-# LANGUAGE PatternSynonyms          #-}
 #endif
+{-# LANGUAGE Trustworthy              #-}
 
 #ifndef MIN_VERSION_base
 #define MIN_VERSION_base(x,y,z) 1
@@ -54,15 +57,18 @@ import Data.Bits
 import Data.Function (on)
 import Data.Int
 import Data.Typeable
-import Foreign.C.Types
+import Foreign.C.Types (CUShort (..))
 import Foreign.Ptr (castPtr)
 import Foreign.Storable
 import GHC.Generics
 #ifdef WITH_TEMPLATE_HASKELL
-import Language.Haskell.TH
-import Language.Haskell.TH.Syntax
 #endif
 import Text.Read hiding (lift)
+
+import Language.Haskell.TH.Syntax (Lift (..))
+#if __GLASGOW_HASKELL__ < 800
+import Language.Haskell.TH
+#endif
 
 -- | Convert a 'Float' to a 'Half' with proper rounding, while preserving NaN and dealing appropriately with infinity
 foreign import ccall unsafe "hs_floatToHalf" toHalf :: Float -> Half
@@ -216,16 +222,18 @@ instance Num Half where
   signum = toHalf . signum . fromHalf
   fromInteger a = toHalf (fromInteger a)
 
-#ifdef WITH_TEMPLATE_HASKELL
+#if __GLASGOW_HASKELL__ >= 800
+instance Lift Half where
+  lift (Half (CUShort w)) = [| Half (CUShort w) |]
+#if MIN_VERSION_template_haskell(2,16,0)
+  liftTyped (Half (CUShort w)) = [|| Half (CUShort w) ||]
+#endif
+#else
 instance Lift Half where
   lift (Half (CUShort w)) =
     appE (conE 'Half) . appE (conE 'CUShort) . litE . integerL . fromIntegral $
     w
-#if MIN_VERSION_template_haskell(2,16,0)
-  liftTyped = error "TODO"
 #endif
-#endif
-
 
 -- Adapted from ghc/rts/StgPrimFloat.c
 --
