@@ -32,6 +32,8 @@ module Numeric.Half
   , isZero
   , fromHalf
   , toHalf
+  -- * Patterns
+  -- | These are available with GHC-7.8 and later.
 #if __GLASGOW_HASKELL__ >= 708
   , pattern POS_INF
   , pattern NEG_INF
