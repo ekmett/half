@@ -11,6 +11,7 @@
 #if __GLASGOW_HASKELL__ >= 708
 {-# LANGUAGE PatternSynonyms          #-}
 #endif
+{-# LANGUAGE Trustworthy              #-}
 
 #ifndef MIN_VERSION_base
 #define MIN_VERSION_base(x,y,z) 1
