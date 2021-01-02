@@ -5,6 +5,7 @@
 * Always provide NFData instance
 * Explicitly mark module as `Trustworthy`
 * Fix `isInfinite`
+* Add experimental support for GHCJS, add pure conversion functions.
 
 0.3
 ---
