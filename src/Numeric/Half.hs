@@ -47,9 +47,7 @@ module Numeric.Half
 #endif
   ) where
 
-#if __GLASGOW_HASKELL__ >= 708
-import Control.DeepSeq (NFData)
-#endif
+import Control.DeepSeq (NFData (..))
 import Data.Bits
 import Data.Function (on)
 import Data.Int
@@ -78,8 +76,11 @@ newtype
 #endif
   Half = Half { getHalf :: CUShort } deriving (Generic, Typeable)
 
-#if __GLASGOW_HASKELL__ >= 708
 instance NFData Half where
+#if MIN_VERSION_deepseq(1,4,0)
+  rnf (Half f) = rnf f
+#else
+  rnf (Half f) = f `seq` ()
 #endif
 
 instance Storable Half where
@@ -218,6 +219,9 @@ instance Lift Half where
   lift (Half (CUShort w)) =
     appE (conE 'Half) . appE (conE 'CUShort) . litE . integerL . fromIntegral $
     w
+#if MIN_VERSION_template_haskell(2,16,0)
+  liftTyped = error "TODO"
+#endif
 #endif
 
 
