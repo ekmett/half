@@ -18,6 +18,12 @@ qnan = Half 0x7fff
 snan :: Half
 snan = Half 0x7dff
 
+pos_inf :: Half
+pos_inf = Half 0x7c00
+
+neg_inf :: Half
+neg_inf = Half 0xfc00
+
 nans :: [Half]
 nans = [qnan, snan]
 
@@ -51,15 +57,15 @@ main = defaultMain $ testGroup "half"
 
   , testGroup "isInfinite"
     [ testProperty "should be equivalent to \\x -> x == POS_INF || x == NEG_INF" $ \x ->
-      isInfinite x === (x == POS_INF || x == NEG_INF)
+      isInfinite x === (x == pos_inf || x == neg_inf)
     , testProperty "should return True on POS_INF" $
-      isInfinite POS_INF === True
+      isInfinite pos_inf === True
     , testProperty "should return True on NEG_INF" $
-      isInfinite NEG_INF === True
+      isInfinite neg_inf === True
     , testProperty "should return false on QNaN" $
-      isInfinite QNaN === False
+      isInfinite qnan === False
     , testProperty "should return false on SNaN" $
-      isInfinite SNaN === False
+      isInfinite snan === False
     ]
 
 #if __GLASGOW_HASKELL__ >= 708
@@ -69,6 +75,12 @@ main = defaultMain $ testGroup "half"
         _    -> False
     , testProperty "SNaN" $ case snan of
         SNaN -> True
+        _    -> False
+    , testProperty "POS_INF" $ case pos_inf of
+        POS_INF -> True
+        _    -> False
+    , testProperty "NEG_INF" $ case neg_inf of
+        NEG_INF -> True
         _    -> False
     ]
 #endif
