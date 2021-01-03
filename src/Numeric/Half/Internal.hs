@@ -66,12 +66,14 @@ import Foreign.Storable
 import GHC.Generics
 #ifdef WITH_TEMPLATE_HASKELL
 #endif
-import Text.Read hiding (lift)
+import Text.Read (Read (..))
 
 import Language.Haskell.TH.Syntax (Lift (..))
 #if __GLASGOW_HASKELL__ < 800
 import Language.Haskell.TH
 #endif
+
+import Data.Binary (Binary (..))
 
 #ifdef __GHCJS__
 toHalf :: Float -> Half
@@ -101,6 +103,10 @@ instance NFData Half where
 #else
   rnf (Half f) = f `seq` ()
 #endif
+
+instance Binary Half where
+  put (Half (CUShort w)) = put w
+  get = fmap (Half . CUShort)  get
 
 instance Storable Half where
   sizeOf = sizeOf . getHalf

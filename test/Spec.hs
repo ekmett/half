@@ -1,4 +1,5 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE OverloadedStrings #-}
 #if __GLASGOW_HASKELL__ >= 708 && __GLASGOW_HASKELL__ < 710
 {-# LANGUAGE PatternSynonyms #-}
 #endif
@@ -9,9 +10,10 @@ import Numeric.Half.Internal
 import Test.Framework (defaultMain, testGroup)
 import Test.Framework.Providers.QuickCheck2 (testProperty)
 import Test.QuickCheck (Arbitrary (..), Property, counterexample, (===), (==>), property, once)
-
 import Foreign.C.Types
 import Data.List (sort)
+import qualified Data.Binary as Binary
+import qualified Data.ByteString.Lazy as LBS
 
 instance Arbitrary Half where
   arbitrary = fmap Half arbitrary
@@ -99,7 +101,30 @@ main = defaultMain
     [ testProperty "for selected range of Float, both version of toHalf should return same Half" $
       once prop_to_half_list
     ]
+
+  , testGroup "Binary"
+    [ testProperty "Binary round trip a" prop_binary_roundtrip_a
+    , testProperty "Binary round trip b" prop_binary_roundtrip_b
+
+    -- big endian
+    , testProperty "Binary encoding example" $
+      Binary.encode neg_inf === LBS.pack [252, 0]
+    ]
   ]
+
+-------------------------------------------------------------------------------
+-- Binary
+-------------------------------------------------------------------------------
+
+prop_binary_roundtrip_a :: Half -> Property
+prop_binary_roundtrip_a h = getHalf h === getHalf (Binary.decode (Binary.encode h))
+
+prop_binary_roundtrip_b :: Half -> Property
+prop_binary_roundtrip_b h = not (isNaN h) ==> h === Binary.decode (Binary.encode h)
+
+-------------------------------------------------------------------------------
+-- Pure conversions
+-------------------------------------------------------------------------------
 
 -- test native haskell implementation of toHalf & fromHalf against with C version
 prop_from_half :: CUShort -> Bool
