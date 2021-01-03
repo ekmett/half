@@ -4,10 +4,11 @@
 #endif
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
-import           Numeric.Half
-import           Test.Framework (defaultMain, testGroup)
-import           Test.Framework.Providers.QuickCheck2 (testProperty)
-import           Test.QuickCheck (Arbitrary (..), Property, counterexample, (===), (==>), property, once)
+import Numeric.Half
+import Numeric.Half.Internal
+import Test.Framework (defaultMain, testGroup)
+import Test.Framework.Providers.QuickCheck2 (testProperty)
+import Test.QuickCheck (Arbitrary (..), Property, counterexample, (===), (==>), property, once)
 
 import Foreign.C.Types
 import Data.List (sort)
@@ -103,8 +104,8 @@ main = defaultMain
 -- test native haskell implementation of toHalf & fromHalf against with C version
 prop_from_half :: CUShort -> Bool
 prop_from_half i = let
-  ref = fromHalf $ Half i
-  imp = pureHalfToFloat i
+  ref = fromHalf         $ Half i
+  imp = pure_halfToFloat $ Half i
   in (isNaN ref && isNaN imp) || (ref == imp)
 
 newtype U16List = U16List [CUShort] deriving (Eq, Ord, Show)
@@ -121,7 +122,7 @@ prop_from_half_list (U16List l) = all id $ map prop_from_half l
 prop_to_half :: Float -> Bool
 prop_to_half i = let
   ref = getHalf $ toHalf i
-  imp = pureFloatToHalf i
+  imp = getHalf $ pure_floatToHalf i
   in ref == imp
 
 -- cover all range of Half(not Float)
@@ -153,5 +154,5 @@ instance Arbitrary FloatList where
 
 prop_to_half_list :: FloatList -> Property
 prop_to_half_list (FloatList l) = counterexample
-    (show [ (getHalf (toHalf f), pureFloatToHalf f, f, isNegativeZero f) | f <- take 3 l])
+    (show [ (getHalf (toHalf f), getHalf (pure_floatToHalf f), f, isNegativeZero f) | f <- take 3 l])
     $ all id $ map prop_to_half l

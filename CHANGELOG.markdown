@@ -2,7 +2,7 @@
 -----
 * Downgraded testing claims that NaNs will round-trip, as 32-bit GHCs aren't fulfilling that promise.
   Now we merely claim that a NaN will return as a NaN.
-* Always provide NFData instance
+* Always provide `NFData` instance
 * Explicitly mark module as `Trustworthy`
 * Fix `isInfinite`
 * Add experimental support for GHCJS, add pure conversion functions.
