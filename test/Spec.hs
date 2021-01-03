@@ -1,16 +1,19 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE OverloadedStrings #-}
 #if __GLASGOW_HASKELL__ >= 708 && __GLASGOW_HASKELL__ < 710
 {-# LANGUAGE PatternSynonyms #-}
 #endif
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
-import           Numeric.Half
-import           Test.Framework (defaultMain, testGroup)
-import           Test.Framework.Providers.QuickCheck2 (testProperty)
-import           Test.QuickCheck (Arbitrary (..), Property, counterexample, (===), (==>), property, once)
-
+import Numeric.Half
+import Numeric.Half.Internal
+import Test.Framework (defaultMain, testGroup)
+import Test.Framework.Providers.QuickCheck2 (testProperty)
+import Test.QuickCheck (Arbitrary (..), Property, counterexample, (===), (==>), property, once)
 import Foreign.C.Types
 import Data.List (sort)
+import qualified Data.Binary as Binary
+import qualified Data.ByteString.Lazy as LBS
 
 instance Arbitrary Half where
   arbitrary = fmap Half arbitrary
@@ -98,13 +101,36 @@ main = defaultMain
     [ testProperty "for selected range of Float, both version of toHalf should return same Half" $
       once prop_to_half_list
     ]
+
+  , testGroup "Binary"
+    [ testProperty "Binary round trip a" prop_binary_roundtrip_a
+    , testProperty "Binary round trip b" prop_binary_roundtrip_b
+
+    -- big endian
+    , testProperty "Binary encoding example" $
+      Binary.encode neg_inf === LBS.pack [252, 0]
+    ]
   ]
+
+-------------------------------------------------------------------------------
+-- Binary
+-------------------------------------------------------------------------------
+
+prop_binary_roundtrip_a :: Half -> Property
+prop_binary_roundtrip_a h = getHalf h === getHalf (Binary.decode (Binary.encode h))
+
+prop_binary_roundtrip_b :: Half -> Property
+prop_binary_roundtrip_b h = not (isNaN h) ==> h === Binary.decode (Binary.encode h)
+
+-------------------------------------------------------------------------------
+-- Pure conversions
+-------------------------------------------------------------------------------
 
 -- test native haskell implementation of toHalf & fromHalf against with C version
 prop_from_half :: CUShort -> Bool
 prop_from_half i = let
-  ref = fromHalf $ Half i
-  imp = pureHalfToFloat i
+  ref = fromHalf         $ Half i
+  imp = pure_halfToFloat $ Half i
   in (isNaN ref && isNaN imp) || (ref == imp)
 
 newtype U16List = U16List [CUShort] deriving (Eq, Ord, Show)
@@ -121,7 +147,7 @@ prop_from_half_list (U16List l) = all id $ map prop_from_half l
 prop_to_half :: Float -> Bool
 prop_to_half i = let
   ref = getHalf $ toHalf i
-  imp = pureFloatToHalf i
+  imp = getHalf $ pure_floatToHalf i
   in ref == imp
 
 -- cover all range of Half(not Float)
@@ -153,5 +179,5 @@ instance Arbitrary FloatList where
 
 prop_to_half_list :: FloatList -> Property
 prop_to_half_list (FloatList l) = counterexample
-    (show [ (getHalf (toHalf f), pureFloatToHalf f, f, isNegativeZero f) | f <- take 3 l])
+    (show [ (getHalf (toHalf f), getHalf (pure_floatToHalf f), f, isNegativeZero f) | f <- take 3 l])
     $ all id $ map prop_to_half l
