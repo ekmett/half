@@ -1,6 +1,6 @@
 cabal-version: >=1.10
 name: half
-version: 0.3
+version: 0.3.1
 license: BSD3
 license-file: LICENSE
 copyright: Copyright (C) 2014 Edward A. Kmett
