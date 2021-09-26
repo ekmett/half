@@ -148,7 +148,7 @@ prop_to_half :: Float -> Bool
 prop_to_half i = let
   ref = getHalf $ toHalf i
   imp = getHalf $ pure_floatToHalf i
-  in ref == imp
+  in (ref == imp) || (isNaN (Half ref) && isNaN (Half imp))
 
 -- cover all range of Half(not Float)
 list1 :: [Float]
