@@ -91,6 +91,7 @@ foreign import ccall unsafe "hs_halfToFloat" fromHalf :: Half -> Float
 -- {-# RULES "fromHalf" realToFrac = fromHalf #-}
 #endif
 
+-- | A half-precision floating point value
 newtype
 #if __GLASGOW_HASKELL__ >= 706
   {-# CTYPE "unsigned short" #-}
@@ -217,10 +218,10 @@ pattern HALF_EPSILON = Half 0x1400  -- 0.00097656
 -- | Number of base 10 digits that can be represented without change
 pattern HALF_DIG = 2
 
--- Minimum positive integer such that 10 raised to that power is a normalized half
+-- | Minimum positive integer such that 10 raised to that power is a normalized half
 pattern HALF_MIN_10_EXP = -4
 
--- Maximum positive integer such that 10 raised to that power is a normalized half
+-- | Maximum positive integer such that 10 raised to that power is a normalized half
 pattern HALF_MAX_10_EXP = 4
 
 #endif
