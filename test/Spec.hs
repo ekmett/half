@@ -156,11 +156,15 @@ list1 = let
   r1 = filter (not . isNaN) $ map (fromHalf . Half) [0 .. 65535]
   r2 = sort $ filter (not . isInfinite) $ filter (>= 0) r1
   r3 = r2 ++ [last r2 + 2 ** 11]
-  r4 = zipWith (\a b -> let d = (b - a) / 4
-                        in [a, a + d, a + d * 2, a + d * 3])
-               r3 (tail r3)
+  r4 = zipWithTail (\a b -> let d = (b - a) / 4
+                            in [a, a + d, a + d * 2, a + d * 3])
+                   r3
   r5 = concat r4 ++ [last r3]
   in r5
+
+zipWithTail :: (a -> a -> b) -> [a] -> [b]
+zipWithTail _ [] = []
+zipWithTail f xs@(_:xss) = zipWith f xs xss
 
 list2 :: [Float]
 list2 = map negate list1
