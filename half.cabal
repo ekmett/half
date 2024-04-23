@@ -85,6 +85,6 @@ test-suite spec
         binary,
         bytestring,
         half,
-        QuickCheck >=2.14.1 && <2.15,
+        QuickCheck >=2.14.1 && <2.16,
         test-framework,
         test-framework-quickcheck2
