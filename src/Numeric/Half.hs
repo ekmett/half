@@ -1,8 +1,5 @@
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE Safe #-}
-#if __GLASGOW_HASKELL__ >= 708
 {-# LANGUAGE PatternSynonyms          #-}
-#endif
 
 -----------------------------------------------------------------------------
 -- |
@@ -23,8 +20,6 @@ module Numeric.Half
   , fromHalf
   , toHalf
   -- * Patterns
-  -- | These are available with GHC-7.8 and later.
-#if __GLASGOW_HASKELL__ >= 708
   , pattern POS_INF
   , pattern NEG_INF
   , pattern QNaN
@@ -36,7 +31,6 @@ module Numeric.Half
   , pattern HALF_DIG
   , pattern HALF_MIN_10_EXP
   , pattern HALF_MAX_10_EXP
-#endif
   ) where
 
 import Numeric.Half.Internal

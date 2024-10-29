@@ -1,9 +1,5 @@
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE OverloadedStrings #-}
-#if __GLASGOW_HASKELL__ >= 708 && __GLASGOW_HASKELL__ < 710
-{-# LANGUAGE PatternSynonyms #-}
-#endif
-{-# OPTIONS_GHC -fno-warn-orphans #-}
+{-# OPTIONS_GHC -Wno-orphans #-}
 
 import Numeric.Half
 import Numeric.Half.Internal
@@ -74,7 +70,6 @@ main = defaultMain
       isInfinite snan === False
     ]
 
-#if __GLASGOW_HASKELL__ >= 708
   , testGroup "Patterns"
     [ testProperty "QNaN" $ case qnan of
         QNaN -> True
@@ -89,7 +84,6 @@ main = defaultMain
         NEG_INF -> True
         _    -> False
     ]
-#endif
 
   -- With GHCJS these tests are trivially true.
   , testGroup "Native fromHalf against C version"

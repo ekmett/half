@@ -1,3 +1,7 @@
+next [????.??.??]
+-----------------
+* Drop support for pre-8.0 versions of GHC.
+
 0.3.1 [2021-01-04]
 ------------------
 * Downgraded testing claims that NaNs will round-trip, as 32-bit GHCs aren't fulfilling that promise.

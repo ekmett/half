@@ -1,21 +1,10 @@
 {-# LANGUAGE BangPatterns             #-}
 {-# LANGUAGE CPP                      #-}
-{-# LANGUAGE DeriveDataTypeable       #-}
 {-# LANGUAGE DeriveGeneric            #-}
 {-# LANGUAGE ForeignFunctionInterface #-}
-#if __GLASGOW_HASKELL__ >= 800
 {-# LANGUAGE TemplateHaskellQuotes    #-}
-#else
-{-# LANGUAGE TemplateHaskell          #-}
-#endif
-#if __GLASGOW_HASKELL__ >= 708
 {-# LANGUAGE PatternSynonyms          #-}
-#endif
 {-# LANGUAGE Trustworthy              #-}
-
-#ifndef MIN_VERSION_base
-#define MIN_VERSION_base(x,y,z) 1
-#endif
 
 -----------------------------------------------------------------------------
 -- |
@@ -36,8 +25,6 @@ module Numeric.Half.Internal
   , fromHalf
   , toHalf
   -- * Patterns
-  -- | These are available with GHC-7.8 and later.
-#if __GLASGOW_HASKELL__ >= 708
   , pattern POS_INF
   , pattern NEG_INF
   , pattern QNaN
@@ -49,7 +36,6 @@ module Numeric.Half.Internal
   , pattern HALF_DIG
   , pattern HALF_MIN_10_EXP
   , pattern HALF_MAX_10_EXP
-#endif
   -- * Pure conversions
   , pure_floatToHalf
   , pure_halfToFloat
@@ -59,19 +45,13 @@ import Control.DeepSeq (NFData (..))
 import Data.Bits
 import Data.Function (on)
 import Data.Int
-import Data.Typeable
 import Foreign.C.Types (CUShort (..))
 import Foreign.Ptr (castPtr)
 import Foreign.Storable
 import GHC.Generics
-#ifdef WITH_TEMPLATE_HASKELL
-#endif
 import Text.Read (Read (..))
 
 import Language.Haskell.TH.Syntax (Lift (..))
-#if __GLASGOW_HASKELL__ < 800
-import Language.Haskell.TH
-#endif
 
 import Data.Binary (Binary (..))
 
@@ -93,17 +73,11 @@ foreign import ccall unsafe "hs_halfToFloat" fromHalf :: Half -> Float
 
 -- | A half-precision floating point value
 newtype
-#if __GLASGOW_HASKELL__ >= 706
   {-# CTYPE "unsigned short" #-}
-#endif
-  Half = Half { getHalf :: CUShort } deriving (Generic, Typeable)
+  Half = Half { getHalf :: CUShort } deriving Generic
 
 instance NFData Half where
-#if MIN_VERSION_deepseq(1,4,0)
   rnf (Half f) = rnf f
-#else
-  rnf (Half f) = f `seq` ()
-#endif
 
 instance Binary Half where
   put (Half (CUShort w)) = put w
@@ -189,8 +163,6 @@ instance RealFloat Half where
 isZero :: Half -> Bool
 isZero (Half h) = h .&. 0x7fff == 0
 
-#if __GLASGOW_HASKELL__ >= 708
-
 -- | Positive infinity
 pattern POS_INF = Half 0x7c00
 
@@ -224,8 +196,6 @@ pattern HALF_MIN_10_EXP = -4
 -- | Maximum positive integer such that 10 raised to that power is a normalized half
 pattern HALF_MAX_10_EXP = 4
 
-#endif
-
 instance Num Half where
   a * b = toHalf (fromHalf a * fromHalf b)
   a - b = toHalf (fromHalf a - fromHalf b)
@@ -235,17 +205,10 @@ instance Num Half where
   signum = toHalf . signum . fromHalf
   fromInteger a = toHalf (fromInteger a)
 
-#if __GLASGOW_HASKELL__ >= 800
 instance Lift Half where
   lift (Half (CUShort w)) = [| Half (CUShort w) |]
 #if MIN_VERSION_template_haskell(2,16,0)
   liftTyped (Half (CUShort w)) = [|| Half (CUShort w) ||]
-#endif
-#else
-instance Lift Half where
-  lift (Half (CUShort w)) =
-    appE (conE 'Half) . appE (conE 'CUShort) . litE . integerL . fromIntegral $
-    w
 #endif
 
 -- Adapted from ghc/rts/StgPrimFloat.c
