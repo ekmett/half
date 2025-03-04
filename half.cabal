@@ -70,5 +70,5 @@ test-suite spec
         bytestring,
         half,
         QuickCheck >=2.14.1 && <2.16,
-        test-framework,
-        test-framework-quickcheck2
+        tasty >= 1.4 && < 1.6,
+        tasty-quickcheck >= 0.10 && < 0.12
