@@ -3,9 +3,9 @@
 
 import Numeric.Half
 import Numeric.Half.Internal
-import Test.Framework (defaultMain, testGroup)
-import Test.Framework.Providers.QuickCheck2 (testProperty)
 import Test.QuickCheck (Arbitrary (..), Property, counterexample, (===), (==>), property, once)
+import Test.Tasty (defaultMain, testGroup)
+import Test.Tasty.QuickCheck (testProperty)
 import Foreign.C.Types
 import Data.List (sort)
 import qualified Data.Binary as Binary
@@ -32,7 +32,8 @@ nans = [qnan, snan]
 -- test QNaN, SNaN patterns
 
 main :: IO ()
-main = defaultMain
+main = defaultMain $
+  testGroup "half"
   [ testGroup "Half Ord instance"
     [ testProperty "(>=) is the opposite of (<) except for NaN" $ \x y ->
         ((x >= y) /= (x < y)) || isNaN x || isNaN (y :: Half)
