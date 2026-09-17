@@ -233,7 +233,7 @@ ieee754_f16_decode (Half (CUShort i)) =
                 then (high2 .|. _HHIGHBIT, exp1)
                 else
                       let go (!h, !e) =
-                            if h .&. _HHIGHBIT /= 0
+                            if h .&. _HHIGHBIT == 0
                               then go (h `unsafeShiftL` 1, e-1)
                               else (h, e)
                       in
