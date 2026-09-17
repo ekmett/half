@@ -109,6 +109,12 @@ main = defaultMain $
   , testProperty "decodeFloat range" $ \x ->
       not (isInfinite x) && not (isNaN x) ==>
       let (m, _) = decodeFloat (x :: Half) in m == 0 || (1024 <= abs m && abs m < 2048)
+
+  , testGroup "fromRational"
+    [ testProperty "0x1.005fff8p0 should round to 0x1.004p0" $ once $
+      fromRational (0x1005fff8 / 2^(28 :: Int)) === (0x1004 / 2^(12 :: Int) :: Half)
+      -- HexFloatLiterals requires GHC 8.4.1
+    ]
   ]
 
 -------------------------------------------------------------------------------

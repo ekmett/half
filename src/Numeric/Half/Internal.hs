@@ -49,6 +49,7 @@ import Foreign.C.Types (CUShort (..))
 import Foreign.Ptr (castPtr)
 import Foreign.Storable
 import GHC.Generics
+import Numeric (fromRat)
 import Text.Read (Read (..))
 
 import Language.Haskell.TH.Syntax (Lift (..))
@@ -109,7 +110,16 @@ instance Real Half where
   toRational = toRational . fromHalf
 
 instance Fractional Half where
-  fromRational = toHalf . fromRational
+  -- NB: 'toHalf . fromRational' would suffer from "double rounding" problem;
+  -- it would not return the Half nearest to the input.
+  -- Consider 0x1.005fff8p0; the nearest Half to this is 0x1.004p0,
+  -- but 'toHalf (fromRational 0x1.005fff8p0 :: Float)' returns 0x1.008p0:
+  --   toHalf (fromRational 0x1.005fff8p0 :: Float)
+  --     = toHalf (0x1.006000p0 :: Float)  -- round to nearest Float
+  --     = 0x1.008p0 :: Half               -- round to nearest Half, ties to even
+  -- We need a proper way to compute the nearest Half from a Rational,
+  -- and Numeric.fromRat does that.
+  fromRational = fromRat
   recip = toHalf . recip . fromHalf
   a / b = toHalf $ fromHalf a / fromHalf b
 
@@ -203,6 +213,10 @@ instance Num Half where
   negate (Half a) = Half (xor 0x8000 a)
   abs = toHalf . abs . fromHalf
   signum = toHalf . signum . fromHalf
+
+  -- Unlike fromRational, 'toHalf . (fromInteger :: Integer -> Float)'
+  -- does not suffer from double rounding.
+  -- The exponent range is too narrow to construct a counterexample.
   fromInteger a = toHalf (fromInteger a)
 
 instance Lift Half where
