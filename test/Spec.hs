@@ -105,6 +105,10 @@ main = defaultMain $
     , testProperty "Binary encoding example" $
       Binary.encode neg_inf === LBS.pack [252, 0]
     ]
+
+  , testProperty "decodeFloat range" $ \x ->
+      not (isInfinite x) && not (isNaN x) ==>
+      let (m, _) = decodeFloat (x :: Half) in m == 0 || (1024 <= abs m && abs m < 2048)
   ]
 
 -------------------------------------------------------------------------------
