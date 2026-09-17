@@ -1,8 +1,8 @@
 unsigned short hs_floatToHalf (float f) {
   union { float d; unsigned int i; } u = { f };
-  int s =  (u.i >> 16) & 0x8000;
-  int e = ((u.i >> 23) & 0xff) - 112;
-  int m =          u.i & 0x7fffff;
+  unsigned int s =  (u.i >> 16) & 0x8000;
+  int e          = ((u.i >> 23) & 0xff) - 112;
+  unsigned int m =          u.i & 0x7fffff;
   if (e <= 0) {
     if (e < -10) return s; /* underflowed */
     /* force leading 1 and round */
@@ -35,10 +35,10 @@ unsigned short hs_floatToHalf (float f) {
   return s | (e << 10) | (m >> 13);
 }
 
-int hs_halfToFloatRep (unsigned short c) {
-  int s = (c >> 15) & 0x001;
-  int e = (c >> 10) & 0x01f;
-  int m =         c & 0x3ff;
+unsigned int hs_halfToFloatRep (unsigned short c) {
+  unsigned int s = (c >> 15) & 0x001;
+  unsigned int e = (c >> 10) & 0x01f;
+  unsigned int m =         c & 0x3ff;
   if (e == 0) {
     if (m == 0) /* +/- 0 */ return s << 31;
     /* denormalized, renormalize it */
