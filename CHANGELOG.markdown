@@ -1,3 +1,8 @@
+next [????.??.??]
+-----------------
+* Fix a bug in the implementation of `decodeFloat` that would cause it to return
+  incorrect values on subnormal inputs.
+
 0.3.3 [2025.06.17]
 ------------------
 * Replace `test-framework` with `tasty` in the test suite.
