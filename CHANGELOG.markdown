@@ -2,6 +2,8 @@ next [????.??.??]
 -----------------
 * Fix a bug in the implementation of `decodeFloat` that would cause it to return
   incorrect values on subnormal inputs.
+* Fix a bug that would cause `s << 31` to trigger undefined behavior if `s` is
+  negative.
 
 0.3.3 [2025.06.17]
 ------------------
