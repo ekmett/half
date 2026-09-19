@@ -4,6 +4,8 @@ next [????.??.??]
   incorrect values on subnormal inputs.
 * Fix a bug that would cause `s << 31` to trigger undefined behavior if `s` is
   negative.
+* Make `fromRational` round towards nearest even for `Half` values, mirroring
+  the behavior of `fromRational` for `Float` and `Double`.
 
 0.3.3 [2025.06.17]
 ------------------
